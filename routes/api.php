@@ -16,4 +16,6 @@ Route::get('/consulta', [App\Http\Controllers\CuentaController::class,'getConsul
 */
 
 Route::apiResource('cuentas', App\Http\Controllers\CuentaController::class);
-Route::post('/depositar', [App\Http\Controllers\CuentaController::class,'depositar']);
+Route::post('/depositar/{id}', [App\Http\Controllers\CuentaController::class,'depositar']);
+Route::post('/transferencia', [App\Http\Controllers\CuentaController::class,'transferencia']);
+Route::post('/retiro', [App\Http\Controllers\CuentaController::class,'retiro']);

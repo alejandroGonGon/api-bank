@@ -77,16 +77,42 @@ class CuentaController extends Controller
         return $Cuenta;
     }
 
-    public function depositar($id, $deposito)
+    public function depositar(Request $request, $id)
     {
         $Cuenta = Cuenta::find($id);
         $monto = $Cuenta->balanza;
-        $cuentaDepositada = $deposito + $monto;
+        $cuentaDepositada = $request->balanza + $monto;
         $Cuenta->balanza = $cuentaDepositada;
-
         $Cuenta->save();
        // $Cuenta->update($Cuenta->balanza = $cuentaDepositada);
         return $Cuenta;
+    }
+    public function transferencia(Request $request)
+    {
+        //
+         $monto = $request->monto;
+         $Cuenta1 = Cuenta::find($request->origen);
+         $Cuenta2 = Cuenta::find($request->destino);
+         //
+         $Cuenta1->balanza = $Cuenta1->balanza - $monto;
+         $Cuenta2->balanza = $Cuenta1->balanza + $monto;
+         //
+        $Cuenta1->save();
+        $Cuenta2->save(); 
+       // $Cuenta->update($Cuenta->balanza = $cuentaDepositada);
+        return $Cuenta1;
+    }
+    public function retiro(Request $request)
+    {
+        //
+         $monto = $request->monto;
+         $Cuenta1 = Cuenta::find($request->origen);
+         //
+         $Cuenta1->balanza = $Cuenta1->balanza - $monto;
+         //
+        $Cuenta1->save();
+       // $Cuenta->update($Cuenta->balanza = $cuentaDepositada);
+        return $Cuenta1;
     }
     /**
      * Remove the specified resource from storage.
