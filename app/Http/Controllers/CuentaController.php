@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Cuenta;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use App\Mail\ContactanosMailable;
+use Illuminate\Support\Facades\Mail;
 
 class CuentaController extends Controller
 {
@@ -35,10 +38,21 @@ class CuentaController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'balanza' => 'required']);
+        $fields = $request->validate([
+            'balanza' => 'required|string'
+        ]);
+        $cuenta = Cuenta::create([
+            'balanza' => $fields['balanza']
+        ]);
 
-        return Cuenta::create($request->all());
+        $token = $cuenta->createToken('myapptoken')->plainTextToken;
+
+        $response = [
+            'cuenta' => $cuenta,
+            'token' => $token
+        ];
+
+        return response($response, 200);
     }
 
     /**
@@ -84,7 +98,8 @@ class CuentaController extends Controller
         $cuentaDepositada = $request->balanza + $monto;
         $Cuenta->balanza = $cuentaDepositada;
         $Cuenta->save();
-       // $Cuenta->update($Cuenta->balanza = $cuentaDepositada);
+        $correo = new ContactanosMailable ('Se a realizado el deposito exitosamente, monto : '.$request->balanza.' cuenta : '.$Cuenta->balanza);
+        Mail::to('alejandro.gonzalez@anima.edu.uy')->send($correo);
         return $Cuenta;
     }
     public function transferencia(Request $request)
@@ -99,7 +114,8 @@ class CuentaController extends Controller
          //
         $Cuenta1->save();
         $Cuenta2->save(); 
-       // $Cuenta->update($Cuenta->balanza = $cuentaDepositada);
+        $correo = new ContactanosMailable ('Se a realizado la transferencia exitosamente, monto : '.$monto.' para la cuenta : '.$request->destino);
+        Mail::to('alejandro.gonzalez@anima.edu.uy')->send($correo);
         return $Cuenta1;
     }
     public function retiro(Request $request)
@@ -111,7 +127,8 @@ class CuentaController extends Controller
          $Cuenta1->balanza = $Cuenta1->balanza - $monto;
          //
         $Cuenta1->save();
-       // $Cuenta->update($Cuenta->balanza = $cuentaDepositada);
+        $correo = new ContactanosMailable ('Se a realizado el retiro exitosamente, monto : '.$monto.'  cuenta : '.$Cuenta1->balanza);
+        Mail::to('alejandro.gonzalez@anima.edu.uy')->send($correo);
         return $Cuenta1;
     }
     /**
